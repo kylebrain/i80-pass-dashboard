@@ -1,0 +1,2 @@
+rootProject.name='i80 Pass Dashboard'
+include ':app'
