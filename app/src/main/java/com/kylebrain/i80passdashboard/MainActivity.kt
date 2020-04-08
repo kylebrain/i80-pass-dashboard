@@ -11,13 +11,10 @@ import android.view.MenuItem
 import com.kylebrain.i80passdashboard.ui.main.SectionsPagerAdapter
 import com.wowza.gocoder.sdk.api.WowzaGoCoder
 
-private const val SDK_SAMPLE_APP_LICENSE_KEY = "GOSK-A547-010C-3669-DDA0-23E0"
-
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val sGoCoderSDK = WowzaGoCoder.init(this, SDK_SAMPLE_APP_LICENSE_KEY)
         setContentView(R.layout.activity_main)
         val sectionsPagerAdapter = SectionsPagerAdapter(this, supportFragmentManager)
         val viewPager: ViewPager = findViewById(R.id.view_pager)
