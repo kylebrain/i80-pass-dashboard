@@ -1,8 +1,11 @@
 package com.kylebrain.i80passdashboard.ui.main
 
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -22,32 +25,75 @@ import com.wowza.gocoder.sdk.api.status.WOWZPlayerStatus
 import com.wowza.gocoder.sdk.api.status.WOWZPlayerStatusCallback
 
 
-class StatusCallback(handler: Handler, spinner: ProgressBar) : WOWZPlayerStatusCallback {
+enum class StatusHandlerCode {
+    VIDEO_LOADED, VIDEO_ERROR
+}
+
+class StatusCallback(handler: Handler) : WOWZPlayerStatusCallback {
     private val handler = handler
-    private val spinner = spinner
 
     override fun onWZStatus(wzStatus: WOWZPlayerStatus) {
         if(wzStatus.state == WOWZPlayerStatus.PlayerState.PLAYING)
         {
-            Log.i("WOWZ", "DISABLING SPINNER!")
-            handler.post(
-                Runnable {
-                    spinner.visibility = View.GONE
+            Log.i("WOWZ_DEV", "DISABLING SPINNER!")
+            handler.sendMessage(
+                Message().apply {
+                    what = StatusHandlerCode.VIDEO_LOADED.ordinal
                 }
             )
         }
-        Log.i("WOWZ", wzStatus.toString())
+
+        val lastError = wzStatus.lastError
+        if(lastError != null)
+        {
+            Log.e("WOWZ_DEV", wzStatus.toString())
+
+            handler.sendMessage(
+                Message().apply {
+                    obj = lastError.errorDescription
+                    arg1 = lastError.errorCode
+                    what = StatusHandlerCode.VIDEO_ERROR.ordinal
+                }
+            )
+        } else
+        {
+            Log.i("WOWZ_DEV", wzStatus.toString())
+        }
     }
 
     override fun onWZError(wzStatus: WOWZPlayerStatus) {
-        Log.e("WOWZ", wzStatus.toString())
+        Log.e("WOWZ_DEV", wzStatus.toString() + "END ERROR")
+    }
+}
+
+class PlayerStatusHandler(context : Context?, spinner : ProgressBar) : Handler()
+{
+    private val context = context
+    private  val spinner = spinner
+
+    override fun handleMessage(msg: Message) {
+        when(msg.what)
+        {
+            StatusHandlerCode.VIDEO_LOADED.ordinal -> spinner.visibility = View.GONE
+            StatusHandlerCode.VIDEO_ERROR.ordinal -> {
+
+                val builder = AlertDialog.Builder(context).apply {
+                    setCancelable(true)
+                    setTitle("WOWZ Error Code " + msg.arg1)
+                    setMessage(msg.obj.toString())
+                }
+
+                Log.d("WOWZ", "Displayed error dialog!")
+                builder.show()
+            }
+        }
     }
 }
 
 /**
  * A placeholder fragment containing a simple view.
  */
-class PlaceholderFragment : Fragment() {
+class CameraFragment : Fragment() {
 
     private lateinit var pageViewModel: PageViewModel
 
@@ -66,7 +112,8 @@ class PlaceholderFragment : Fragment() {
             inflater: LayoutInflater, container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_main, container, false)
+        val root = inflater.inflate(R.layout.camera_layout, container, false)
+
         val textView: TextView = root.findViewById(R.id.section_label)
         pageViewModel.text.observe(this, Observer<String> {
             textView.text = it
@@ -85,14 +132,16 @@ class PlaceholderFragment : Fragment() {
         spinner = root.findViewById(R.id.spinner)
         mStreamPlayerView = root.findViewById(R.id.vwStreamPlayer)
         mStreamPlayerView.scaleMode = WOWZMediaConfig.FILL_VIEW
-        mStreamPlayerConfig = WOWZPlayerConfig()
-        mStreamPlayerConfig.isPlayback = true
-        mStreamPlayerConfig.hostAddress = "wzmedia.dot.ca.gov"
-        mStreamPlayerConfig.applicationName = "D3"
-        mStreamPlayerConfig.streamName = STREAM_NAME
-        mStreamPlayerConfig.portNumber = 1935
+        mStreamPlayerConfig = WOWZPlayerConfig().apply {
+            isPlayback = true
+            hostAddress = "wzmedia.dot.ca.gov"
+            applicationName = "D3"
+            streamName = STREAM_NAME
+            portNumber = 1935
+        }
 
-        var mStreamCallBack = StatusCallback(Handler(Looper.getMainLooper()), spinner)
+
+        var mStreamCallBack = StatusCallback(PlayerStatusHandler(context, spinner))
 
         spinner.visibility = View.VISIBLE
         mStreamPlayerView.play(mStreamPlayerConfig, mStreamCallBack)
@@ -112,9 +161,8 @@ class PlaceholderFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        var mStreamCallBack = StatusCallback(Handler(Looper.getMainLooper()), spinner)
         spinner.visibility = View.VISIBLE
-        mStreamPlayerView.play(mStreamPlayerConfig, mStreamCallBack)
+        mStreamPlayerView.play(mStreamPlayerConfig, StatusCallback(PlayerStatusHandler(context, spinner)))
     }
 
     companion object {
@@ -129,8 +177,8 @@ class PlaceholderFragment : Fragment() {
          * number.
          */
         @JvmStatic
-        fun newInstance(sectionNumber: Int): PlaceholderFragment {
-            return PlaceholderFragment().apply {
+        fun newInstance(sectionNumber: Int): CameraFragment {
+            return CameraFragment().apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }

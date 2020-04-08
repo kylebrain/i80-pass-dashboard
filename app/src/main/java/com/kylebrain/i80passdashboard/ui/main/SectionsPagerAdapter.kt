@@ -7,8 +7,17 @@ import androidx.fragment.app.FragmentPagerAdapter
 import com.kylebrain.i80passdashboard.R
 
 private val TAB_TITLES = arrayOf(
-        R.string.tab_text_1,
-        R.string.tab_text_2
+        R.string.camera_tab_name,
+        R.string.twitter_tab_name,
+        R.string.maps_tab_name,
+        R.string.weather_tab_name
+)
+
+private val TAB_INSTANCES = arrayOf(
+    CameraFragment.newInstance(0),
+    TwitterFragment.newInstance("test1", "test2"),
+    TwitterFragment.newInstance("test1", "test2"),
+    TwitterFragment.newInstance("test1", "test2")
 )
 
 /**
@@ -20,8 +29,7 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager)
 
     override fun getItem(position: Int): Fragment {
         // getItem is called to instantiate the fragment for the given page.
-        // Return a PlaceholderFragment (defined as a static inner class below).
-        return PlaceholderFragment.newInstance(position + 1)
+        return TAB_INSTANCES[position]
     }
 
     override fun getPageTitle(position: Int): CharSequence? {
@@ -29,7 +37,7 @@ class SectionsPagerAdapter(private val context: Context, fm: FragmentManager)
     }
 
     override fun getCount(): Int {
-        // Show 2 total pages.
-        return 1
+        // Show 4 total pages.
+        return 4
     }
 }
