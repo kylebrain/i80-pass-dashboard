@@ -1,4 +1,4 @@
-package com.kylebrain.i80passdashboard.ui.main
+package com.kylebrain.i80passdashboard.ui.main.twitter
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

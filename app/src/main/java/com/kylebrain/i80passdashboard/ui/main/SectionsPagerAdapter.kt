@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentPagerAdapter
 import com.kylebrain.i80passdashboard.R
+import com.kylebrain.i80passdashboard.ui.main.camera.CameraFragment
+import com.kylebrain.i80passdashboard.ui.main.twitter.TwitterFragment
 
 private val TAB_TITLES = arrayOf(
         R.string.camera_tab_name,

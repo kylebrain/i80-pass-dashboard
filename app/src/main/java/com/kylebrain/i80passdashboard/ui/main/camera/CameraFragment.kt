@@ -1,29 +1,19 @@
-package com.kylebrain.i80passdashboard.ui.main
+package com.kylebrain.i80passdashboard.ui.main.camera
 
-import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.kylebrain.i80passdashboard.R
+import com.kylebrain.i80passdashboard.ui.main.PageViewModel
 import com.wowza.gocoder.sdk.api.WowzaGoCoder
 import com.wowza.gocoder.sdk.api.configuration.WOWZMediaConfig
-import com.wowza.gocoder.sdk.api.logging.WOWZLog
 import com.wowza.gocoder.sdk.api.player.WOWZPlayerConfig
 import com.wowza.gocoder.sdk.api.player.WOWZPlayerView
-import com.wowza.gocoder.sdk.api.status.WOWZBroadcastStatus.BroadcastState
-import com.wowza.gocoder.sdk.api.status.WOWZPlayerStatus
-import com.wowza.gocoder.sdk.api.status.WOWZPlayerStatusCallback
 
 private const val SDK_SAMPLE_APP_LICENSE_KEY = "GOSK-A547-010C-3669-DDA0-23E0"
 private const val STREAM_NAME = "80_donner_summit.stream"
@@ -53,7 +43,9 @@ class CameraFragment : Fragment() {
         val root = inflater.inflate(R.layout.camera_layout, container, false)
         val textView: TextView = root.findViewById(R.id.section_label)
 
-        val sGoCoderSDK = WowzaGoCoder.init(context, SDK_SAMPLE_APP_LICENSE_KEY)
+        val sGoCoderSDK = WowzaGoCoder.init(context,
+            SDK_SAMPLE_APP_LICENSE_KEY
+        )
 
         if (sGoCoderSDK == null)
         {
@@ -70,12 +62,19 @@ class CameraFragment : Fragment() {
             isPlayback = true
             hostAddress = "wzmedia.dot.ca.gov"
             applicationName = "D3"
-            streamName = STREAM_NAME
+            streamName =
+                STREAM_NAME
             portNumber = 1935
         }
 
 
-        var mStreamCallBack = StatusCallback(PlayerStatusHandler(context, spinner))
+        var mStreamCallBack =
+            StatusCallback(
+                PlayerStatusHandler(
+                    context,
+                    spinner
+                )
+            )
 
         spinner.visibility = View.VISIBLE
         mStreamPlayerView.play(mStreamPlayerConfig, mStreamCallBack)
@@ -103,7 +102,14 @@ class CameraFragment : Fragment() {
             while (!mStreamPlayerView.isReadyToPlay) {}
         }
 
-        mStreamPlayerView.play(mStreamPlayerConfig, StatusCallback(PlayerStatusHandler(context, spinner)))
+        mStreamPlayerView.play(mStreamPlayerConfig,
+            StatusCallback(
+                PlayerStatusHandler(
+                    context,
+                    spinner
+                )
+            )
+        )
     }
 
     companion object {
@@ -119,7 +125,8 @@ class CameraFragment : Fragment() {
          */
         @JvmStatic
         fun newInstance(sectionNumber: Int): CameraFragment {
-            return CameraFragment().apply {
+            return CameraFragment()
+                .apply {
                 arguments = Bundle().apply {
                     putInt(ARG_SECTION_NUMBER, sectionNumber)
                 }

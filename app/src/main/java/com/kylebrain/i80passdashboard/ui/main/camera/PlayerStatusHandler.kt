@@ -1,4 +1,4 @@
-package com.kylebrain.i80passdashboard.ui.main
+package com.kylebrain.i80passdashboard.ui.main.camera
 
 import android.app.AlertDialog
 import android.content.Context
